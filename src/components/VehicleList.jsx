@@ -97,22 +97,22 @@ const VehicleList = ({ vehicles, onUpdateStatus, onUpdate, onDelete }) => {
 
             return (
               <div key={v.id} className={`card ${v.status === 'Delivered' ? '' : new Date(v.expectedDelivery) < new Date() && v.status !== 'Ready for Delivery' ? 'urgent' : ''}`} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="flex justify-between items-center" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-                  <div style={{ flex: 1 }}>
+                <div className="flex justify-between items-center" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
                     {isEditing ? (
-                      <div className="flex gap-2 mb-2">
-                        <input type="text" name="carName" value={editFormData.carName} onChange={handleEditChange} style={{ flex: 1, padding: '0.25rem 0.5rem' }} placeholder="Car Name" />
-                        <input type="text" name="numberPlate" value={editFormData.numberPlate} onChange={handleEditChange} style={{ flex: 1, padding: '0.25rem 0.5rem', textTransform: 'uppercase' }} placeholder="Number Plate" />
+                      <div className="flex gap-2 mb-2" style={{ flexWrap: 'wrap' }}>
+                        <input type="text" name="carName" value={editFormData.carName} onChange={handleEditChange} style={{ flex: 1, minWidth: '120px', padding: '0.25rem 0.5rem' }} placeholder="Car Name" />
+                        <input type="text" name="numberPlate" value={editFormData.numberPlate} onChange={handleEditChange} style={{ flex: 1, minWidth: '120px', padding: '0.25rem 0.5rem', textTransform: 'uppercase' }} placeholder="Number Plate" />
                       </div>
                     ) : (
                       <>
-                        <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{v.carName}</h3>
+                        <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem', wordBreak: 'break-word' }}>{v.carName}</h3>
                         <span className="vehicle-plate">{v.numberPlate}</span>
                       </>
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" style={{ flexWrap: 'wrap' }}>
                     {isEditing ? (
                       <>
                         <button onClick={saveEdit} className="btn btn-success" style={{ padding: '0.5rem' }} title="Save">

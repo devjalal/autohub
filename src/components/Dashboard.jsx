@@ -15,7 +15,7 @@ const Dashboard = ({ vehicles, onViewChange, markAsExported }) => {
   const pendingDeliveries = vehicles.filter(v => v.status === 'In Service' || v.status === 'Ready for Delivery').length;
   
   const completedToday = vehicles.filter(v => {
-    if (v.status !== 'Ready for Delivery') return false;
+    if (v.status !== 'Delivered') return false;
     const d = new Date(v.updatedAt || v.createdAt);
     return !isNaN(d.getTime()) && isSameDay(d, today);
   }).length;

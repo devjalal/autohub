@@ -55,7 +55,7 @@ export function useVehicles() {
   };
 
   const updateVehicleStatus = (id, status) => {
-    setVehicles(vehicles.map(v => v.id === id ? { ...v, status } : v));
+    setVehicles(vehicles.map(v => v.id === id ? { ...v, status, updatedAt: new Date().toISOString() } : v));
     setHasUnsavedChanges(true);
   };
 
