@@ -7,12 +7,24 @@ const Dashboard = ({ vehicles, onViewChange, markAsExported }) => {
   const today = startOfDay(new Date());
   const tomorrow = addDays(today, 1);
 
-  const todayIncoming = vehicles.filter(v => isSameDay(new Date(v.arrivalDate), today)).length;
+  const todayIncoming = vehicles.filter(v => {
+    const d = new Date(v.arrivalDate);
+    return !isNaN(d.getTime()) && isSameDay(d, today);
+  }).length;
+  
   const pendingDeliveries = vehicles.filter(v => v.status === 'In Service' || v.status === 'Ready for Delivery').length;
-  const completedToday = vehicles.filter(v => v.status === 'Ready for Delivery' && isSameDay(new Date(v.updatedAt || v.createdAt), today)).length;
+  
+  const completedToday = vehicles.filter(v => {
+    if (v.status !== 'Ready for Delivery') return false;
+    const d = new Date(v.updatedAt || v.createdAt);
+    return !isNaN(d.getTime()) && isSameDay(d, today);
+  }).length;
+
   const urgentVehicles = vehicles.filter(v => {
     if (v.status === 'Delivered') return false;
-    const deliveryDate = startOfDay(new Date(v.expectedDelivery));
+    const d = new Date(v.expectedDelivery);
+    if (isNaN(d.getTime())) return false;
+    const deliveryDate = startOfDay(d);
     // Include vehicles due tomorrow or earlier
     return deliveryDate <= tomorrow && v.status !== 'Ready for Delivery';
   });

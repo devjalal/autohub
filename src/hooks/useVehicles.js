@@ -83,7 +83,10 @@ export function useVehicles() {
       currentVehicles.forEach(v => {
         if (v.status === 'Delivered') return;
 
-        const deliveryDate = startOfDay(new Date(v.expectedDelivery));
+        const dateObj = new Date(v.expectedDelivery);
+        if (isNaN(dateObj.getTime())) return;
+        
+        const deliveryDate = startOfDay(dateObj);
         
         // 1 day before
         if (isSameDay(deliveryDate, tomorrow)) {
