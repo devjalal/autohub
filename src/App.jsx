@@ -11,8 +11,12 @@ function App() {
 
   useEffect(() => {
     // Request notification permission on load
-    if ("Notification" in window && Notification.permission !== "denied" && Notification.permission !== "granted") {
-      Notification.requestPermission();
+    try {
+      if ("Notification" in window && Notification.permission !== "denied" && Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+    } catch (e) {
+      console.warn("Notifications not supported or blocked");
     }
   }, []);
 

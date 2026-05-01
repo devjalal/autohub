@@ -4,14 +4,23 @@ import { downloadPDF } from '../utils/exportPdf';
 
 export function useVehicles() {
   const [vehicles, setVehicles] = useState(() => {
-    const saved = localStorage.getItem('workshop_vehicles');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('workshop_vehicles');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.warn("localStorage is disabled or not supported");
+      return [];
+    }
   });
   
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('workshop_vehicles', JSON.stringify(vehicles));
+    try {
+      localStorage.setItem('workshop_vehicles', JSON.stringify(vehicles));
+    } catch (e) {
+      // Ignore
+    }
     checkNotifications(vehicles);
   }, [vehicles]);
 
@@ -30,14 +39,19 @@ export function useVehicles() {
   // Automatic PDF Export Check
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const lastExportDate = localStorage.getItem('last_auto_export_date');
+    let lastExportDate = null;
+    try {
+      lastExportDate = localStorage.getItem('last_auto_export_date');
+    } catch (e) {}
     
     // If we haven't exported today and there are vehicles, do it
     if (lastExportDate !== today && vehicles.length > 0) {
       // Delay it slightly so it doesn't interrupt immediate rendering
       const timer = setTimeout(() => {
         downloadPDF(vehicles, true);
-        localStorage.setItem('last_auto_export_date', today);
+        try {
+          localStorage.setItem('last_auto_export_date', today);
+        } catch (e) {}
       }, 3000);
       
       return () => clearTimeout(timer);
@@ -74,36 +88,40 @@ export function useVehicles() {
   };
 
   const checkNotifications = (currentVehicles) => {
-    if (!("Notification" in window)) return;
-    
-    if (Notification.permission === "granted") {
-      const today = startOfDay(new Date());
-      const tomorrow = addDays(today, 1);
+    try {
+      if (!("Notification" in window)) return;
+      
+      if (Notification.permission === "granted") {
+        const today = startOfDay(new Date());
+        const tomorrow = addDays(today, 1);
 
-      currentVehicles.forEach(v => {
-        if (v.status === 'Delivered') return;
+        currentVehicles.forEach(v => {
+          if (v.status === 'Delivered') return;
 
-        const dateObj = new Date(v.expectedDelivery);
-        if (isNaN(dateObj.getTime())) return;
-        
-        const deliveryDate = startOfDay(dateObj);
-        
-        // 1 day before
-        if (isSameDay(deliveryDate, tomorrow)) {
-          new Notification(`Reminder: ${v.carName}`, {
-            body: `Vehicle ${v.numberPlate} is due for delivery tomorrow.`,
-            icon: '/vite.svg'
-          });
-        }
-        
-        // Overdue
-        if (isBefore(deliveryDate, today) && v.status !== 'Ready for Delivery') {
-          new Notification(`Urgent: ${v.carName} Overdue`, {
-            body: `Vehicle ${v.numberPlate} delivery is overdue!`,
-            icon: '/vite.svg'
-          });
-        }
-      });
+          const dateObj = new Date(v.expectedDelivery);
+          if (isNaN(dateObj.getTime())) return;
+          
+          const deliveryDate = startOfDay(dateObj);
+          
+          // 1 day before
+          if (isSameDay(deliveryDate, tomorrow)) {
+            new Notification(`Reminder: ${v.carName}`, {
+              body: `Vehicle ${v.numberPlate} is due for delivery tomorrow.`,
+              icon: '/vite.svg'
+            });
+          }
+          
+          // Overdue
+          if (isBefore(deliveryDate, today) && v.status !== 'Ready for Delivery') {
+            new Notification(`Urgent: ${v.carName} Overdue`, {
+              body: `Vehicle ${v.numberPlate} delivery is overdue!`,
+              icon: '/vite.svg'
+            });
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("Notifications not supported or blocked", e);
     }
   };
 
