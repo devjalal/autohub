@@ -47,7 +47,7 @@ export function useVehicles() {
   const addVehicle = (vehicle) => {
     const newVehicle = {
       ...vehicle,
-      id: crypto.randomUUID(),
+      id: window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2),
       createdAt: new Date().toISOString(),
     };
     setVehicles([newVehicle, ...vehicles]);
